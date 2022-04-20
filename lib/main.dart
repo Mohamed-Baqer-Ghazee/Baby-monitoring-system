@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'dart:convert';
+import 'dart:async';
 
 String spo2="";
 String hr="";
@@ -12,41 +13,30 @@ void fetchData() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+String id="4";
   DatabaseReference starCountRef =
-  FirebaseDatabase.instance.ref('users');
+  FirebaseDatabase.instance.ref('users/'+id);
   starCountRef.onValue.listen((DatabaseEvent event) {
     final data = event.snapshot.value;
     //print(data);
 
     var endd = jsonDecode(jsonEncode(event.snapshot.value));
+    print(endd);
     var temp1;
-    temp1 = endd[5]['temp'];
+    temp1 = endd['temp'];
     temp=temp1.toString();
-    temp1 = endd[5]['hr'];
+    temp1 = endd['hr'];
     hr=temp1.toString();
-    temp1 = endd[5]['spo2'];
+    temp1 = endd['spo2'];
     spo2=temp1.toString();
-
-    //for(int i=1;endd[i]['age']!=-1;i++) {
-    //print(endd[i]['age']);
-    //var user = User();
-    //user.id = endd[1]['id'];
-    //userarr[0] = user;
-    //print(userarr[i][1]);
-
-
-    //var user1=User();
-    //user1.id= endd['1'];
-    //user1.age=endd['234'];
-    //print(user1.age);
   } );
 
 }
 void main() async {
-
-  fetchData();
-  runApp(MyApp());
+  Timer.periodic(Duration(seconds: 10), (timer) {
+    fetchData();
+    runApp(MyApp());
+  });
 }
 
 // main(){
@@ -116,7 +106,7 @@ class Home extends StatelessWidget{
               ],
             ),
             SizedBox(height: 10,),
-            Container(margin: EdgeInsets.fromLTRB(0, 20, 0, 20),
+            Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
               child: Center(child: Column(
                 children: [
                   Text("Oxygen Saturation",style: TextStyle(fontSize: 25,color:
@@ -128,22 +118,21 @@ class Home extends StatelessWidget{
               )),
 
               width: MediaQuery.of(context).size.width*0.8,
-              height: MediaQuery.of(context).size.height*0.3,
-              color: Colors.pink[200],),
+              height: MediaQuery.of(context).size.height*0.2,
+              color: Colors.pink[200],),Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: Center(child: Column(
+                children: [TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter a search term',
+                  ),
+                ),
+                ],
+              )),
+            )
           ],
         ),
       ),);
   }
 
 }
-
-// Future<void> fetchDate() async{
-//   const url="https://esp32test-d9d69-default-rtdb.europe-west1.firebasedatabase.app/test.json";
-//   try{
-//     final http.Response res=await http.get(url);
-//     print( json.decode(res.body));
-//     notifyListeners();
-// }catch (error){
-//     throw error;
-// }
-// }
