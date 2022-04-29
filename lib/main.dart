@@ -5,15 +5,19 @@ import 'firebase_options.dart';
 import 'dart:convert';
 import 'dart:async';
 
-String spo2="";
-String hr="";
-String temp="";
+bool _secureText = true;
+String spo2="SpO2";
+String hr="HR";
+String temp="Temp";
+String id="4";
+
+TextEditingController _nameController =TextEditingController();
 void fetchData() async{
+  print("temp: "+temp);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-String id="4";
   DatabaseReference starCountRef =
   FirebaseDatabase.instance.ref('users/'+id);
   starCountRef.onValue.listen((DatabaseEvent event) {
@@ -33,106 +37,142 @@ String id="4";
 
 }
 void main() async {
-  Timer.periodic(Duration(seconds: 10), (timer) {
+  Timer.periodic(Duration(seconds: 7), (timer) {
     fetchData();
     runApp(MyApp());
   });
 }
 
-// main(){
-//   runApp(MyApp());   // الداله الي تشغل التطبيق (runapp)
-//   // (myapp) اسم كلاس
-// }
 
+class MyApp extends StatelessWidget {         //(StatefulWidget) ثابته الي هي الشاشه يجري عليها تغييرات jUI ميخلي ال
 
-class MyApp extends StatefulWidget {         //(StatefulWidget) ثابته الي هي الشاشه يجري عليها تغييرات jUI ميخلي ال
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
 
     return MaterialApp(
-      home:Home(),        // استدعاء للكلاس
+      home:const _MyAppState(title: 'Flutter Demo Home Page'),        // استدعاء للكلاس
     );
   }
 }
-class Home extends StatelessWidget{
+
+class _MyAppState extends StatefulWidget {
+  final String title;
+
+  const _MyAppState({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
+
   @override
-  // void initState(){
-  //   Provider.of<Products>(context,listen:false).fetchDate();
-  //   super.initState();
-  // }
+  Home createState() => Home();
+}
+class Home extends State<_MyAppState>{
+  @override
+
   Widget build(BuildContext context) {
-    print(temp);
-    return  Scaffold(backgroundColor: Colors.white,     //Scaffold الواجهة
-      appBar: AppBar(title: Text("Information View"),),  //appBar الشريط الازرق
+
+    print("temp: "+temp);
+    return  Scaffold(backgroundColor: Colors.grey[150],     //Scaffold الواجهة
+      appBar: AppBar(title: Text("Information View"),backgroundColor: Colors.blue[200]),  //appBar الشريط الازرق
       body: Container(                                     //body من الشريط الازرق وجوة
-        width: double.infinity,margin: EdgeInsets.all(20),
+        width: double.infinity,margin: EdgeInsets.all(10),
+        height: MediaQuery.of(context).size.height*0.6,
         child: Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+              child: Center(
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter Your ID',
+                            labelText: "iD",
+                            errorText: null,
+                            suffixIcon: IconButton(
+                              icon: Icon(_secureText ? Icons.remove_red_eye: Icons.security),
+                              onPressed: (){
+                                setState((){
+                                  _secureText = !_secureText;
+                                });
+                              },
+                            ),
+                            labelStyle: TextStyle(
+                                fontSize: 25,
+                                color: Colors.black38
+                            )
+                          //border:OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        obscureText:  _secureText ,
+                      ),
+                      RaisedButton(onPressed: (){
+                        print("ID" + _nameController.text);
+                        id=_nameController.text;
+
+                      }
+                      )
+                    ],
+                  )),
+              width: MediaQuery.of(context).size.width * 0.8,
+              color: Colors.blue[100],
+            ),
             Row(mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(width: MediaQuery.of(context).size.width*0.4,color: Colors.blue[200],
-                  height: MediaQuery.of(context).size.height*0.2,
+                Container(
+                  width: MediaQuery.of(context).size.width*0.39,
+                  color: Colors.blueAccent[100],
+                  height: MediaQuery.of(context).size.height*0.15,
                   margin: EdgeInsets.only(right: 2.5),
 
                   child: Center(child: Column(
                     children: [
-                      Text("Heart Rate",style:  TextStyle(fontSize: 25,color:
-                      Colors.black),),
-                      Text(hr,style:  TextStyle(fontSize: 25,color:
-                      Colors.black),),
+                      Text("Heart Rate",
+                        style:  TextStyle(fontSize: 25,
+                            color:Colors.grey[100]),),
+                      Text(hr,
+                        style:  TextStyle(fontSize: 25,
+                            color: Colors.grey[100]),),
                     ],
                   )),
                 ),
-                Container(width: MediaQuery.of(context).size.width*0.4,color: Colors.grey[300],
-                  height: MediaQuery.of(context).size.height*0.2,
+                Container(
+                  width: MediaQuery.of(context).size.width*0.39,
+                  color: Colors.blueAccent[100],
+                  height: MediaQuery.of(context).size.height*0.15,
                   margin: EdgeInsets.only(left: 2.5),
-
                   child: Center(child: Column(
                     children: [
-                      Text("temperature ",style: TextStyle(fontSize:25,color:
-                      Colors.black),),
+                      Text("Temperature ",
+                        style: TextStyle(fontSize:25,
+                            color: Colors.grey[100]),),
 
-                      Text(temp,style: TextStyle(fontSize: 25,color:
-                      Colors.black),),
+                      Text(temp,
+                        style: TextStyle(fontSize: 25,
+                            color:Colors.grey[100]),),
                     ],
                   )),
                 ),
               ],
             ),
-            SizedBox(height: 10,),
-            Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+            Container(margin: EdgeInsets.fromLTRB(0, 5, 0, 10),
               child: Center(child: Column(
                 children: [
                   Text("Oxygen Saturation",style: TextStyle(fontSize: 25,color:
-                  Colors.black),),
+                  Colors.grey[100]),),
 
                   Text(spo2,style: TextStyle(fontSize: 25,color:
-                  Colors.black),),
+                  Colors.grey[100]),),
                 ],
               )),
 
               width: MediaQuery.of(context).size.width*0.8,
-              height: MediaQuery.of(context).size.height*0.2,
-              color: Colors.pink[200],),Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-              child: Center(child: Column(
-                children: [TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter a search term',
-                  ),
-                ),
-                ],
-              )),
-            )
+              height: MediaQuery.of(context).size.height*0.15,
+              color: Colors.blueAccent[100],),
           ],
         ),
       ),);
   }
-
 }
